@@ -1000,24 +1000,6 @@ public:
     atomic_incw(tmp1, tmp2);
   }
 
-  // Biased locking support
-  // lock_reg and obj_reg must be loaded up with the appropriate values.
-  // swap_reg is killed.
-  // tmp_reg must be supplied and must not be t0 or t1
-  // Optional slow case is for implementations (interpreter and C1) which branch to
-  // slow case directly. Leaves condition codes set for C2's Fast_Lock done.
-  // Returns offset of first potentially-faulting instruction for null
-  // check info (currently consumed only by C1). If
-  // swap_reg_contains_mark is true then returns -1 as it as assumed
-  // the calling code has already passed any potential faults.
-  void biased_locking_enter(Register lock_reg, Register obj_reg,
-                            Register swap_reg, Register tmp_Reg,
-                            bool swap_reg_contains_mark,
-                            Label& done, Label* slow_case = NULL,
-                            BiasedLockingCounters* counters = NULL,
-                            Register flag = noreg);
-  void biased_locking_exit(Register obj_reg, Register tmp_reg, Label& done, Register flag = noreg);
-
   static bool far_branches() {
     return ReservedCodeCacheSize > branch_range;
   }
@@ -1281,8 +1263,6 @@ private:
 
   void load_reserved(Register addr, enum operand_size size, Assembler::Aqrl acquire);
   void store_conditional(Register addr, Register new_val, enum operand_size size, Assembler::Aqrl release);
-
-  void load_prototype_header(Register dst, Register src);
 };
 
 #ifdef ASSERT
