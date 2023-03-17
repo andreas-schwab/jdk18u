@@ -1956,8 +1956,14 @@ bool Matcher::is_spillable_arg(int reg)
   return can_be_java_arg(reg);
 }
 
-const int Matcher::float_pressure(int default_pressure_threshold) {
-  return default_pressure_threshold;
+uint Matcher::int_pressure_limit()
+{
+  return (INTPRESSURE == -1) ? 24 : INTPRESSURE;
+}
+
+uint Matcher::float_pressure_limit()
+{
+  return (FLOATPRESSURE == -1) ? 32 : FLOATPRESSURE;
 }
 
 bool Matcher::use_asm_for_ldiv_by_con(jlong divisor) {
