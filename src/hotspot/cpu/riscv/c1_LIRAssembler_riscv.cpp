@@ -367,7 +367,11 @@ int LIR_Assembler::emit_unwind_handler() {
   if (method()->is_synchronized()) {
     monitor_address(0, FrameMap::r10_opr);
     stub = new MonitorExitStub(FrameMap::r10_opr, true, 0);
-    __ unlock_object(x15, x14, x10, *stub->entry());
+    if (UseHeavyMonitors) {
+      __ j(*stub->entry());
+    } else {
+      __ unlock_object(x15, x14, x10, *stub->entry());
+    }
     __ bind(*stub->continuation());
   }
 
@@ -1508,7 +1512,7 @@ void LIR_Assembler::emit_lock(LIR_OpLock* op) {
   Register obj = op->obj_opr()->as_register();  // may not be an oop
   Register hdr = op->hdr_opr()->as_register();
   Register lock = op->lock_opr()->as_register();
-  if (!UseFastLocking) {
+  if (UseHeavyMonitors) {
     __ j(*op->stub()->entry());
   } else if (op->code() == lir_lock) {
     assert(BasicLock::displaced_header_offset_in_bytes() == 0, "lock_reg must point to the displaced header");
